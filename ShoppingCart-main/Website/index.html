@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart System - Order Management</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-shopping-cart"></i>
+                <h1>Shopping Cart System</h1>
+            </div>
+            <nav class="nav">
+                <a href="#create" class="nav-link active">
+                    <i class="fas fa-plus-circle"></i> Tạo đơn hàng
+                </a>
+                <a href="#orders" class="nav-link">
+                    <i class="fas fa-list"></i> Danh sách đơn hàng
+                </a>
+                <a href="#stats" class="nav-link">
+                    <i class="fas fa-chart-bar"></i> Thống kê
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- API Status -->
+            <div id="apiStatus" class="api-status">
+                <i class="fas fa-circle-notch fa-spin"></i> Đang kết nối API...
+            </div>
+
+            <!-- Create Order Section -->
+            <section id="createSection" class="section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-plus-circle"></i> Tạo đơn hàng mới</h2>
+                    <p>Nhập thông tin sản phẩm và địa chỉ giao hàng</p>
+                </div>
+                
+                <div class="card">
+                    <form id="createOrderForm" class="order-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="itemCode">
+                                    <i class="fas fa-barcode"></i> Mã sản phẩm *
+                                </label>
+                                <input type="text" id="itemCode" name="itemCode" required 
+                                       placeholder="VD: ITEM001" maxlength="50">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="itemName">
+                                    <i class="fas fa-box"></i> Tên sản phẩm *
+                                </label>
+                                <input type="text" id="itemName" name="itemName" required 
+                                       placeholder="VD: Laptop Dell XPS 13" maxlength="200">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="itemQty">
+                                    <i class="fas fa-sort-numeric-up"></i> Số lượng *
+                                </label>
+                                <input type="number" id="itemQty" name="itemQty" required 
+                                       min="1" value="1" placeholder="Số lượng">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="orderDelivery">
+                                    <i class="fas fa-calendar-alt"></i> Ngày giao hàng *
+                                </label>
+                                <input type="datetime-local" id="orderDelivery" name="orderDelivery" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="orderAddress">
+                                <i class="fas fa-map-marker-alt"></i> Địa chỉ giao hàng *
+                            </label>
+                            <textarea id="orderAddress" name="orderAddress" required rows="3" 
+                                      placeholder="VD: 123 Nguyễn Huệ, Quận 1, TP.HCM" maxlength="500"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phoneNumber">
+                                <i class="fas fa-phone"></i> Số điện thoại *
+                            </label>
+                            <input type="tel" id="phoneNumber" name="phoneNumber" required 
+                                   placeholder="VD: 0901234567" maxlength="20" pattern="[0-9]{10,11}">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Tạo đơn hàng
+                            </button>
+                            <button type="reset" class="btn btn-secondary">
+                                <i class="fas fa-redo"></i> Làm mới
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Orders List Section -->
+            <section id="ordersSection" class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-list"></i> Danh sách đơn hàng</h2>
+                    <button id="refreshBtn" class="btn btn-primary btn-sm">
+                        <i class="fas fa-sync-alt"></i> Làm mới
+                    </button>
+                </div>
+
+                <div id="ordersContainer" class="orders-grid">
+                    <!-- Orders will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Statistics Section -->
+            <section id="statsSection" class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-bar"></i> Thống kê đơn hàng</h2>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalOrders">0</h3>
+                            <p>Tổng đơn hàng</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalItems">0</h3>
+                            <p>Tổng sản phẩm</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="todayOrders">0</h3>
+                            <p>Đơn hôm nay</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="statsChart" class="chart-container">
+                    <!-- Chart will be displayed here -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Chỉnh sửa đơn hàng</h3>
+                <button class="modal-close" onclick="closeEditModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="editOrderForm" class="order-form">
+                <input type="hidden" id="editOrderId">
+                
+                <div class="form-group">
+                    <label><i class="fas fa-info-circle"></i> Thông tin đơn hàng</label>
+                    <div class="info-box">
+                        <p><strong>Mã sản phẩm:</strong> <span id="editItemCode"></span></p>
+                        <p><strong>Tên sản phẩm:</strong> <span id="editItemName"></span></p>
+                        <p><strong>Số lượng:</strong> <span id="editItemQty"></span></p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editOrderDelivery">
+                        <i class="fas fa-calendar-alt"></i> Ngày giao hàng *
+                    </label>
+                    <input type="datetime-local" id="editOrderDelivery" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editOrderAddress">
+                        <i class="fas fa-map-marker-alt"></i> Địa chỉ giao hàng *
+                    </label>
+                    <textarea id="editOrderAddress" required rows="3" maxlength="500"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Lưu thay đổi
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">
+                        <i class="fas fa-times"></i> Hủy
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
